@@ -1,21 +1,37 @@
-﻿# CMakeList.txt : CMake project for BoronServer, include source and define
-# project specific logic here.
-#
-cmake_minimum_required (VERSION 3.10)
+﻿cmake_minimum_required(VERSION 3.10)
 
-# Enable Hot Reload for MSVC compilers if supported.
-if (POLICY CMP0141)
-  cmake_policy(SET CMP0141 NEW)
-  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+project(BoronServer)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+include(FetchContent)
+
+FetchContent_Declare(
+    enet
+    GIT_REPOSITORY https://github.com/lsalzman/enet.git
+    GIT_TAG v1.3.18
+)
+
+FetchContent_MakeAvailable(enet)
+
+add_executable(BoronServer
+    BoronServer.cpp
+    Networking/NetworkServer.cpp
+    Networking/NetworkServer.h
+)
+
+target_include_directories(BoronServer PRIVATE
+    "${enet_SOURCE_DIR}/include"
+)
+
+target_link_libraries(BoronServer PRIVATE
+    enet
+)
+
+if(WIN32)
+    target_link_libraries(BoronServer PRIVATE
+        ws2_32
+        winmm
+    )
 endif()
-
-project ("BoronServer")
-
-# Add source to this project's executable.
-add_executable (BoronServer "BoronServer.cpp" "BoronServer.h")
-
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET BoronServer PROPERTY CXX_STANDARD 20)
-endif()
-
-# TODO: Add tests and install targets if needed.

@@ -1,9 +1,26 @@
-﻿#include "BoronServer.h"
+﻿#include "Networking/NetworkServer.h"
 
-using namespace std;
+#include <enet/enet.h>
+#include <iostream>
+#include <thread>
+#include <chrono>
 
 int main()
 {
-	cout << "Hello CMake." << endl;
-	return 0;
+    NetworkServer server;
+
+    if (!server.Start(25555))
+    {
+        std::cout << "Server failed!\n";
+        return 1;
+    }
+
+    std::cout << "Server started!\n";
+
+    while (true)
+    {
+        server.Update();
+    }
+
+    return 0;
 }
