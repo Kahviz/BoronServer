@@ -11,7 +11,7 @@ bool NetworkServer::Start(int port)
 
     ENetAddress address{};
     address.host = ENET_HOST_ANY;
-    address.port = 25565;
+    address.port = port;
 
     m_server = enet_host_create(
         &address,
@@ -28,16 +28,18 @@ bool NetworkServer::Start(int port)
         return false;
     }
 
-    std::cout << "ENet server started on port 25565!\n";
-
-    enet_host_destroy(m_server);
-    enet_deinitialize();
+    std::cout << "ENet server started on port "
+        << port << "!\n";
 
     return true;
 }
+
 void NetworkServer::Update()
 {
-    ENetEvent event;
+    if (m_server == nullptr)
+        return;
+
+    ENetEvent event{};
 
     while (enet_host_service(m_server, &event, 0) > 0)
     {
@@ -53,7 +55,11 @@ void NetworkServer::Update()
 
         case ENET_EVENT_TYPE_RECEIVE:
             std::cout << "Received packet!\n";
+
             enet_packet_destroy(event.packet);
+            break;
+
+        default:
             break;
         }
     }
